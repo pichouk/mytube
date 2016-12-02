@@ -1,0 +1,12 @@
+*.pyc
+*~
+*.swp
+mytube/settings.py
+.DS_Store
+.project
+.pydevproject
+.settings/*
+/media
+/smedia
+.idea
+venv
