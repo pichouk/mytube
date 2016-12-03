@@ -1,0 +1,29 @@
+/*
+  CSS for the header part
+*/
+header{
+    margin: 20px;
+}
+
+#header-banner{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*
+  CSS for the content part
+*/
+#content{
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+/*
+  CSS for the footer part
+*/
+#footer-banner{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

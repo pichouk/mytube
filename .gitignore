@@ -10,3 +10,4 @@ mytube/settings.py
 /smedia
 .idea
 venv
+*.sqlite*

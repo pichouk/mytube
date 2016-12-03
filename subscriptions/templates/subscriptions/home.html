@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'subscriptions/home.css' %}" />
+{% endblock %}
+
+{% block content %}
+<h3>Vidéos</h3>
+{% for video in videos %}
+  <p>
+    <h4>{{ video.channel_id.name }}</h4>
+    <a href="https://www.youtube.com/watch?v={{ video.id }}"><h5>{{ video.title }}</h5></a>
+  </p>
+{% endfor %}
+{% endblock %}
