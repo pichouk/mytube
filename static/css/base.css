@@ -5,6 +5,12 @@ header{
     margin-top: 20px;
 }
 
+#header-banner{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /*
   CSS for the content part
 */

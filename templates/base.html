@@ -7,12 +7,14 @@
    <link rel="stylesheet" href="{%static 'css/bootstrap.min.css' %}" />
    <link rel="stylesheet" href="{%static 'css/base.css' %}" />
    {% block css %}{% endblock %}
-   <title>{% block title %}Mytube{% endblock %}</title>
+   <title>{% block title %}MyTube{% endblock %}</title>
 </head>
 <body>
 <div class="container-fluid">
   <header class="row">
-    Header
+    <div id="header-banner" class="col-md-7 col-sm-6 col-xs-6" >
+      <h1>MyTube</h1>
+    </div>
   </header>
   <div class="row">
    <div id="content" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -21,7 +23,7 @@
   </div>
   <footer class="row">
     <div id="footer-banner" class="col-lg-12">
-      Footer
+      Made with <3 by Kyâne
     </div>
   </footer>
 </div>
