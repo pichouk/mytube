@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'subscriptions/add_channel.css' %}" />
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <h2 class="col-lg-10 col-lg-offset-2 col-md-offset-1">Add channel</h2>
+  </div>
+
+  <div class="row">
+    {% if error %}
+    <p><strong>{{ error_message }}</strong></p>
+    {% endif %}
+
+    {% if not success %}
+      <form method="post" action="/add">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <input type="submit" value="Add" class="btn btn-primary"/>
+      </form>
+    {% else %}
+      <p>Successfully add channel {{ channel_title }}</p>
+    {% endif %}
+  </div>
+{% endblock %}
