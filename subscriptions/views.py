@@ -13,7 +13,7 @@ import time
 from datetime import datetime
 
 def home(request):
-    videos = Video.objects.all()
+    videos = Video.objects.all().order_by('-date')
     return render(request, 'subscriptions/home.html', locals())
 
 def add_channel(request):
