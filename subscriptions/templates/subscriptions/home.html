@@ -5,11 +5,42 @@
 {% endblock %}
 
 {% block content %}
-<h3>Vidéos</h3>
-{% for video in videos %}
-  <p>
-    <h4>{{ video.channel_id.name }}</h4>
-    <a href="https://www.youtube.com/watch?v={{ video.id }}"><h5>{{ video.title }}</h5></a>
-  </p>
-{% endfor %}
+<section id="left-section" class="col-lg-6 col-sm-6">
+  <div class="row">
+    <h2 class="col-lg-10 col-lg-offset-2 col-md-offset-1">Videos</h3>
+  </div>
+
+  <div class="row">
+    {% for video in videos %}
+      <p>
+        <a href="https://www.youtube.com/watch?v={{ video.id }}"><h5>{{ video.title }}</h5></a>
+        {{ video.channel_id.name }}
+
+        <button id="button_{{ video.id }}">Video</button>
+      </p>
+
+      <script>
+          var button = document.getElementById('button_{{ video.id }}');
+          button.addEventListener('click', function(){
+            var frame = document.createElement('iframe');
+            frame.setAttribute('src','https://www.youtube.com/embed/{{ video.id }}');
+            frame.setAttribute('frameborder','0');
+            frame.setAttribute('width','560');
+            frame.setAttribute('height','315');
+            frame.setAttribute('allowfullscreen','');
+
+            var div_container = document.getElementById('video_frame')
+            div_container.replaceChild(frame,div_container.firstChild);
+          });
+      </script>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="right-section" class="col-lg-6 col-sm-6">
+  <div class="row">
+    <div id="video_frame">
+    </div>
+  </div>
+</section>
 {% endblock %}
