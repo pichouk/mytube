@@ -12,7 +12,7 @@ import feedparser
 import time
 from datetime import datetime
 
-def home(request):
+def home(request,page=1):
     videos = Video.objects.all().order_by('-date')
     return render(request, 'subscriptions/home.html', locals())
 
@@ -78,7 +78,7 @@ def add_channel(request):
 
 def refresh(request,id_channel):
     error = False
-    if id_channel == "all":
+    if id_channel is None:
         channels = Channel.objects.all()
     else:
         channels = Channel.objects.filter(id=id_channel)
