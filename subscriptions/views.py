@@ -12,8 +12,25 @@ import feedparser
 import time
 from datetime import datetime
 
-def home(request,page=1):
-    videos = Video.objects.all().order_by('-date')
+def home(request):
+    nb_by_page = 20
+    if 'page' in request.GET.keys():
+        try:
+            page_nb = int(request.GET['page'])
+        except ValueError:
+            page_nb = 1
+    else:
+        page_nb = 1
+    videos = Video.objects.all().order_by('-date')[nb_by_page*(page_nb-1):nb_by_page*page_nb]
+
+    if page_nb == 1:
+        previous = None
+        pages = [1,2,3]
+        next = 4
+    else:
+        previous = max(1,page_nb-2)
+        pages = [page_nb-1,page_nb,page_nb+1]
+        next = page_nb+2
     return render(request, 'subscriptions/home.html', locals())
 
 def add_channel(request):

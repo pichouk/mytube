@@ -35,6 +35,17 @@
       </script>
     {% endfor %}
   </div>
+  <div class="row">
+    <ul class="pagination pagination-lg">
+      {% if previous is not None %}
+        <li><a href="?page={{ previous }}">&laquo;</a></li>
+      {% endif %}
+      {% for page in pages %}
+        <li><a href="?page={{ page }}">{{ page }}</a></li>
+      {% endfor %}
+      <li><a href="?page={{ next }}">&raquo;</a></li>
+    </ul>
+  </div>
 </section>
 
 <section id="right-section" class="col-lg-6 col-sm-6">
