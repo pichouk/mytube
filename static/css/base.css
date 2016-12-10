@@ -2,10 +2,17 @@
   CSS for the header part
 */
 header{
-    margin: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 #header-banner{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+nav{
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,4 +33,6 @@ header{
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
