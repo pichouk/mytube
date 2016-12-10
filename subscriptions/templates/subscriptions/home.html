@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block css %}
+{% block head %}
 <link rel="stylesheet" href="{% static 'subscriptions/home.css' %}" />
+<script src="{% static 'subscriptions/scripts.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -15,24 +16,8 @@
       <p>
         <a href="https://www.youtube.com/watch?v={{ video.id }}"><h5>{{ video.title }}</h5></a>
         {{ video.channel_id.name }}
-
-        <button id="button_{{ video.id }}">Video</button>
+        <button id="button_{{ video.id }}" onclick="showVideo('{{ video.id }}');">Video</button>
       </p>
-
-      <script>
-          var button = document.getElementById('button_{{ video.id }}');
-          button.addEventListener('click', function(){
-            var frame = document.createElement('iframe');
-            frame.setAttribute('src','https://www.youtube.com/embed/{{ video.id }}');
-            frame.setAttribute('frameborder','0');
-            frame.setAttribute('width','560');
-            frame.setAttribute('height','315');
-            frame.setAttribute('allowfullscreen','');
-
-            var div_container = document.getElementById('video_frame')
-            div_container.replaceChild(frame,div_container.firstChild);
-          });
-      </script>
     {% endfor %}
   </div>
   <div class="row">
