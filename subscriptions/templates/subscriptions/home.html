@@ -6,37 +6,38 @@
 {% endblock %}
 
 {% block content %}
-<section id="left-section" class="col-lg-6 col-sm-6">
-  <div class="row">
-    <h2 class="col-lg-10 col-lg-offset-2 col-md-offset-1">Videos</h2>
-  </div>
-
-  <div class="row">
+<section id="left-section" class="col-lg-12">
+  <div class="list-group">
     {% for video in videos %}
-      <p>
-        <a href="https://www.youtube.com/watch?v={{ video.id }}"><h5>{{ video.title }}</h5></a>
+    <div class="list-group-item">
+      <p class="list-group-item-text">
         {{ video.channel_id.name }}
-        <button id="button_{{ video.id }}" onclick="showVideo('{{ video.id }}');">Video</button>
       </p>
+      <h4 class="list-group-item-heading">{{ video.title }}</h4>
+      <div class="buttons">
+        <button class="btn btn-primary" id="button_{{ video.id }}" onclick="showVideo('{{ video.id }}');">Watch here</button>
+        <a href="https://www.youtube.com/watch?v={{ video.id }}" target="_blank"><button class="btn btn-primary" >Watch on YouTube</button></a>
+      </div>
+      <div id="video_frame_{{ video.id }}">
+      </div>
+    </div>
     {% endfor %}
   </div>
-  <div class="row">
-    <ul class="pagination pagination-lg">
-      {% if previous is not None %}
-        <li><a href="?page={{ previous }}">&laquo;</a></li>
-      {% endif %}
-      {% for page in pages %}
-        <li><a href="?page={{ page }}">{{ page }}</a></li>
-      {% endfor %}
-      <li><a href="?page={{ next }}">&raquo;</a></li>
-    </ul>
-  </div>
 </section>
 
-<section id="right-section" class="col-lg-6 col-sm-6">
-  <div class="row">
-    <div id="video_frame">
-    </div>
-  </div>
-</section>
+<div class="col-lg-12" id="pagebar-container">
+  <ul class="pagination pagination-lg">
+    {% if previous is not None %}
+      <li><a href="?page={{ previous }}">&laquo;</a></li>
+    {% endif %}
+    {% for page in pages %}
+      {% if page_nb == page %}
+        <li class="active"><a href="?page={{ page }}">{{ page }}</a></li>
+      {% else %}
+        <li><a href="?page={{ page }}">{{ page }}</a></li>
+      {% endif %}
+    {% endfor %}
+    <li><a href="?page={{ next }}">&raquo;</a></li>
+  </ul>
+</div>
 {% endblock %}

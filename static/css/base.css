@@ -2,7 +2,6 @@
   CSS for the header part
 */
 header{
-    margin-top: 20px;
     margin-bottom: 20px;
 }
 
@@ -33,6 +32,5 @@ nav{
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
 }
