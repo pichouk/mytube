@@ -1,15 +1,43 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block css %}
+{% block head %}
 <link rel="stylesheet" href="{% static 'subscriptions/home.css' %}" />
+<script src="{% static 'subscriptions/scripts.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-<h3>Vidéos</h3>
-{% for video in videos %}
-  <p>
-    <h4>{{ video.channel_id.name }}</h4>
-    <a href="https://www.youtube.com/watch?v={{ video.id }}"><h5>{{ video.title }}</h5></a>
-  </p>
-{% endfor %}
+<section id="left-section" class="col-lg-12">
+  <div class="list-group">
+    {% for video in videos %}
+    <div class="list-group-item">
+      <p class="list-group-item-text">
+        {{ video.channel_id.name }}
+      </p>
+      <h4 class="list-group-item-heading">{{ video.title }}</h4>
+      <div class="buttons">
+        <button class="btn btn-primary" id="button_{{ video.id }}" onclick="showVideo('{{ video.id }}');">Watch here</button>
+        <a href="https://www.youtube.com/watch?v={{ video.id }}" target="_blank"><button class="btn btn-primary" >Watch on YouTube</button></a>
+      </div>
+      <div id="video_frame_{{ video.id }}">
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<div class="col-lg-12" id="pagebar-container">
+  <ul class="pagination pagination-lg">
+    {% if previous is not None %}
+      <li><a href="?page={{ previous }}">&laquo;</a></li>
+    {% endif %}
+    {% for page in pages %}
+      {% if page_nb == page %}
+        <li class="active"><a href="?page={{ page }}">{{ page }}</a></li>
+      {% else %}
+        <li><a href="?page={{ page }}">{{ page }}</a></li>
+      {% endif %}
+    {% endfor %}
+    <li><a href="?page={{ next }}">&raquo;</a></li>
+  </ul>
+</div>
 {% endblock %}
