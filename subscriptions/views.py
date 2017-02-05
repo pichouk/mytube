@@ -82,7 +82,7 @@ def add_channel(request):
                 return render(request, 'subscriptions/add_channel.html', locals())
             channel.save()
             success = True
-            return render(request, 'subscriptions/add_channel.html', locals())
+            return redirect("refresh", channel_id=channel.id)
         else:
             error = True
             error_message = "Invalid form."
