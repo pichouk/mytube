@@ -1,0 +1,11 @@
+[dev-packages]
+
+[packages]
+requests = "==2.19.1"
+feedparser = "==5.2.1"
+"beautifulsoup4" = "==4.6.3"
+lxml = "==4.2.5"
+Django = "==2.1.1"
+
+[requires]
+python_version = "3.6"
