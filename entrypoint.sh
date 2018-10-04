@@ -3,6 +3,7 @@
 CONFIG_FILE="/config/settings.py"
 # Read environment variables or set default values
 FQDN=${FQDN:-localhost}
+REFRESH_INTERVAL_MINUTES=${REFRESH_INTERVAL_MINUTES:-60}
 
 # Function to generate Django-like secret keys
 generate_key() {
@@ -35,7 +36,12 @@ then
 fi
 
 # Collect statics files
-pipenv run python manage.py collectstatic
+pipenv run python manage.py collectstatic --noinput
+
+# Prepare crontab for refresh task
+echo "*/${REFRESH_INTERVAL_MINUTES} * * * * curl http://localhost:8000/refresh/" > /crontab.conf
+crontab  /crontab.conf
+crond
 
 # Run Django server
 pipenv run python manage.py runserver 0.0.0.0:8000

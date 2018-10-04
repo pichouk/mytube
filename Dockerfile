@@ -10,6 +10,7 @@ WORKDIR /code
 
 # Install dependencies
 RUN apk add --no-cache \
+      curl \
       gcc \
       gettext \
       openssl-dev \

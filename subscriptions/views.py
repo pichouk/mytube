@@ -11,6 +11,7 @@ import bs4
 import feedparser
 import time
 from datetime import datetime
+import threading
 
 def home(request):
     nb_by_page = 20
@@ -93,8 +94,16 @@ def add_channel(request):
         form = AddChannelForm()
         return render(request, 'subscriptions/add_channel.html', locals())
 
-def refresh(request,id_channel):
-    error = False
+def refresh(request, id_channel):
+    # Refresh job can be long, need to run it in background
+    refresh_thread = threading.Thread(target=run_refresh, kwargs={'id_channel': id_channel})
+    refresh_thread.start()
+    return redirect('home')
+    refresh_thread.join()
+
+
+def run_refresh(id_channel):
+    print('Start refresh job in background')
     if id_channel is None:
         channels = Channel.objects.all()
     else:
@@ -114,4 +123,4 @@ def refresh(request,id_channel):
                 continue
             video = Video(id=video_id,title=post.get('title'),channel_id=channel,date=datetime.fromtimestamp(time.mktime(post.get('published_parsed'))))
             video.save()
-    return redirect('home')
+    print('Refresh is done !')

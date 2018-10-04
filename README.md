@@ -10,6 +10,7 @@ You can simply build Mytube with Docker using `docker build -t mytube .`
 
 You need to provide several environment variables to your Mytube container to configure the application.
 - `FQDN` : FQDN of your Mytube instance (eg. `mytube.mydomain.fr`)
+- `REFRESH_INTERVAL_MINUTES` : How often your Mytube instance should collect new videos
 
 ## Run
 
@@ -63,7 +64,6 @@ services:
 ```
 
 # TODO on Mytube
-- Use cronjob to refresh
 - Add support for PostgreSQL
 - Create a function that purge all videos older than a date. Use cron to run this function (at a specific interval).
-- Add support for users.
+- Add support for users (then `refresh` endpoint will need an ADMIN_KEY)
