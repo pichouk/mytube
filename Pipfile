@@ -8,6 +8,7 @@ lxml = "==4.2.5"
 Django = "==2.1.1"
 "psycopg2" = "*"
 python-dateutil = "*"
+gunicorn = "==19.9.0"
 
 [requires]
 python_version = "3.6"

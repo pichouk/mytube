@@ -79,5 +79,7 @@ echo "*/${REFRESH_INTERVAL_MINUTES} * * * * curl http://localhost:8000/refresh/"
 crontab  /crontab.conf
 crond
 
-# Run Django server
-pipenv run python manage.py runserver 0.0.0.0:8000
+# Run Gunicorn server
+pipenv run gunicorn -w $((($(nproc --all)*2)+1)) \
+  --log-level=info --log-file=- --error-logfile=- --access-logfile=- \
+  -b 0.0.0.0:8000 mytube.wsgi
