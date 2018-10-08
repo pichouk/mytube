@@ -4,6 +4,8 @@ CONFIG_FILE="/config/settings.py"
 # Read environment variables or set default values
 FQDN=${FQDN:-localhost}
 REFRESH_INTERVAL_MINUTES=${REFRESH_INTERVAL_MINUTES:-60}
+LANGUAGE_CODE=${LANGUAGE_CODE:-fr-FR}
+TIME_ZONE=${TIME_ZONE:-UTC}
 
 # Function to generate Django-like secret keys
 generate_key() {
@@ -19,7 +21,17 @@ then
   cp /code/mytube/settings_example.py $CONFIG_FILE
   # Set some values
   sed -i "s/<<\$FDQN\$>>/$FQDN/g" $CONFIG_FILE
-  sed -i "s/<<\$SECRET_KEY\$>>/$(generate_key)/g" $CONFIG_FILE
+  sed -i "s/<<\$LANGUAGE_CODE\$>>/$LANGUAGE_CODE/g" $CONFIG_FILE
+  sed -i "s/<<\$TIME_ZONE\$>>/$TIME_ZONE/g" $CONFIG_FILE
+
+  # Set secret key
+  if [ -z "$DJANGO_SECRET_KEY" ]
+  then
+    sed -i "s/<<\$SECRET_KEY\$>>/$(generate_key)/g" $CONFIG_FILE
+  else
+    sed -i "s/<<\$SECRET_KEY\$>>/$DJANGO_SECRET_KEY/g" $CONFIG_FILE
+  fi
+
 fi
 
 # Create symbolic links to point to configuration file

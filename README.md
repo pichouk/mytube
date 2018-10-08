@@ -10,7 +10,12 @@ You can simply build Mytube with Docker using `docker build -t mytube .`
 
 You need to provide several environment variables to your Mytube container to configure the application.
 - `FQDN` : FQDN of your Mytube instance (eg. `mytube.mydomain.fr`)
-- `REFRESH_INTERVAL_MINUTES` : How often your Mytube instance should collect new videos
+
+Some other optionnal variables :
+- `REFRESH_INTERVAL_MINUTES` : How often your Mytube instance should collect new videos (default is `60`)
+- `LANGUAGE_CODE` : Language code for your instance (default is `fr-FR` :p )
+- `TIME_ZONE` : Your timezone (defaut is `UTC`)
+- `DJANGO_SECRET_KEY` : If you d'ont want to loose your secret key everytime you restart your container, you can give it one. Not mandatory.
 
 ## Run
 
@@ -22,7 +27,6 @@ You can create a `docker-compose.yml` file (example can be found at the end of t
 
 To ensure data persistence, you will need to provide some volumes to your container :
 - one for `/statics` folder that will contains all static files of Django. This volume **MUST** be shared with another container that is able to serve those static files.
-- one for `/config` folder, that will only contains the `settings.py` file for Django. If you don't mount one, your configuration will be reset at each container startup. In practice it will only reset your Django secret key.
 - one for `/data` folder **only if you use SQLite** (default option)
 
 ### Expose
@@ -42,7 +46,6 @@ services:
     environment:
       - FQDN=mytube.domain.fr
     volumes:
-      - /path/to/volumes/mytube/config:/config
       - /path/to/volumes/mytube/static:/statics
       - /path/to/volumes/mytube/data:/data
     labels:

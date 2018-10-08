@@ -74,13 +74,23 @@ WSGI_APPLICATION = 'mytube.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'database.sqlite3'),
-    }
-}
+# sqlite_config #DATABASES = {
+# sqlite_config #    'default': {
+# sqlite_config #        'ENGINE': 'django.db.backends.sqlite3',
+# sqlite_config #        'NAME': os.path.join(BASE_DIR, 'database.sqlite3'),
+# sqlite_config #    }
+# sqlite_config #}
 
+# pg_config #DATABASES = {
+# pg_config #    'default': {
+# pg_config #        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+# pg_config #        'NAME': '<<$PG_DBNAME$>>',
+# pg_config #        'USER': '<<$PG_USER$>>',
+# pg_config #        'PASSWORD': '<<$PG_PASSWORD$>>',
+# pg_config #        'HOST': '<<$PG_HOST$>>',
+# pg_config #        'PORT': '<<$PG_PORT$>>',
+# pg_config #    }
+# pg_config #}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -104,9 +114,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
-LANGUAGE_CODE = 'fr-FR'
+LANGUAGE_CODE = '<<$LANGUAGE_CODE$>>'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = '<<$TIME_ZONE$>>'
 
 USE_I18N = True
 
