@@ -29,6 +29,15 @@ To ensure data persistence, you will need to provide some volumes to your contai
 - one for `/statics` folder that will contains all static files of Django. This volume **MUST** be shared with another container that is able to serve those static files.
 - one for `/data` folder **only if you use SQLite** (default option)
 
+### PostgreSQL database
+
+By default Mytube use a SQLite database (stored under `/data`), but you can change to use a PostgreSQL database. If you provide a `PG_PASSWORD` environment variables it will try to connect to a PostgreSQL database (it was tested with PostgreSQL 10.5), but you can provide some other variables :
+- `PG_DBNAME` : Name of the database to connect (default is `mytube`)
+- `PG_USER` : Username to connect to database (default is `mytube`)
+- `PG_PASSWORD` : Password to connect to database
+- `PG_HOST` : Host address of the PostgreSQL instance (default is `db`)
+- `PG_PORT` : Port of PostgreSQL instance (default is `5432`)
+
 ### Expose
 
 I recommend to expose your Mytube instance with a reverse proxy (I use Traefik). The reverse proxy should be configured to forward all requests to the Mytube container (port `8000`) except for everything under `/static` path, that should be serve by another web server (Apache, Nginx, etc.)
@@ -37,6 +46,7 @@ I recommend to expose your Mytube instance with a reverse proxy (I use Traefik).
 
 I use Traefik to expose my containers.
 
+With SQLite
 ```yml
 version: '3'
 services:
@@ -66,7 +76,49 @@ services:
     restart: always
 ```
 
+With PostgreSQL
+```yml
+version: '3'
+services:
+  mytube:
+    image: mytube
+    container_name: mytube
+    links:
+      - mytube-db:db
+    environment:
+      - FQDN=mytube.domain.fr
+      - PG_PASSWORD=thisisaweakpassword
+    volumes:
+      - /path/to/volumes/mytube/static:/statics
+    labels:
+        - "traefik.frontend.rule=Host:localhost"
+        - "traefik.port=8000"
+        - "traefik.enable=true"
+    restart: always
+
+  mytube-db:
+    image: postgres:10.5-alpine
+    container_name: mytube-db
+    volumes:
+      - /path/to/volumes/mytube/pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=mytube
+      - POSTGRES_PASSWORD=thisisaweakpassword
+      - POSTGRES_DB=mytube
+    restart: always
+
+  mytube-static:
+    image: nginx:stable-alpine
+    container_name: mytube-static
+    volumes:
+      - /path/to/volumes/mytube/static:/usr/share/nginx/html/static:ro
+    labels:
+      - "traefik.frontend.rule=Host:mytube.domain.fr;PathPrefix:/static"
+      - "traefik.port=80"
+      - "traefik.enable=true"
+    restart: always
+```
+
 # TODO on Mytube
-- Add support for PostgreSQL
 - Create a function that purge all videos older than a date. Use cron to run this function (at a specific interval).
 - Add support for users (then `refresh` endpoint will need an ADMIN_KEY)

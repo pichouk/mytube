@@ -6,6 +6,10 @@ FQDN=${FQDN:-localhost}
 REFRESH_INTERVAL_MINUTES=${REFRESH_INTERVAL_MINUTES:-60}
 LANGUAGE_CODE=${LANGUAGE_CODE:-fr-FR}
 TIME_ZONE=${TIME_ZONE:-UTC}
+PG_DBNAME=${PG_DBNAME:-mytube}
+PG_USER=${PG_USER:-mytube}
+PG_HOST=${PG_HOST:-db}
+PG_PORT=${PG_PORT:-5432}
 
 # Function to generate Django-like secret keys
 generate_key() {
@@ -32,13 +36,33 @@ then
     sed -i "s/<<\$SECRET_KEY\$>>/$DJANGO_SECRET_KEY/g" $CONFIG_FILE
   fi
 
+  # Configure database
+  if [ -z "$PG_PASSWORD" ]
+  then
+    # SQLite
+    sed -i -E "s/^# sqlite_config #(.*)/\1/g" $CONFIG_FILE
+    # Create symbolic links to point to SQLite database file
+    ln -s /data/database.sqlite3 /code/database.sqlite3
+  else
+    # PostgreSQL
+    sed -i -E "s/^# pg_config #(.*)/\1/g" $CONFIG_FILE
+    sed -i "s/<<\$PG_DBNAME\$>>/$PG_DBNAME/g" $CONFIG_FILE
+    sed -i "s/<<\$PG_USER\$>>/$PG_USER/g" $CONFIG_FILE
+    sed -i "s/<<\$PG_PASSWORD\$>>/$PG_PASSWORD/g" $CONFIG_FILE
+    sed -i "s/<<\$PG_HOST\$>>/$PG_HOST/g" $CONFIG_FILE
+    sed -i "s/<<\$PG_PORT\$>>/$PG_PORT/g" $CONFIG_FILE
+
+    # Wait for database to be reachable
+    echo "Wait until database $PG_HOST:$PG_PORT is ready..."
+    until nc -z $PG_HOST $PG_PORT
+    do
+      sleep 1
+    done
+  fi
 fi
 
 # Create symbolic links to point to configuration file
 ln -s $CONFIG_FILE /code/mytube/settings.py
-
-# Create symbolic links to point to SQLite database file
-ln -s /data/database.sqlite3 /code/database.sqlite3
 
 # Check migrations
 pipenv run python manage.py showmigrations | grep '\[ \]' > /dev/null
