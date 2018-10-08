@@ -12,6 +12,7 @@ import feedparser
 import time
 from datetime import datetime
 import threading
+import dateutil.parser
 
 def home(request):
     nb_by_page = 20
@@ -121,6 +122,6 @@ def run_refresh(id_channel):
             # If video is already in the database, skip it
             if video_id in videos_id:
                 continue
-            video = Video(id=video_id,title=post.get('title'),channel_id=channel,date=datetime.fromtimestamp(time.mktime(post.get('published_parsed'))))
+            video = Video(id=video_id,title=post.get('title'),channel_id=channel,date=dateutil.parser.parse(post.get('published')))
             video.save()
     print('Refresh is done !')
