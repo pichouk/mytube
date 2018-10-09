@@ -1,21 +1,24 @@
-from django.shortcuts import render, redirect
-
-# Forms
-from subscriptions.forms import LoginForm, AddChannelForm
-# Model
-from subscriptions.models import Channel, Video
+"""Django views"""
 
 # Some python lib
+import threading
+import dateutil.parser
 import requests
 import bs4
 import feedparser
-import time
-from datetime import datetime
-import threading
-import dateutil.parser
+# Django functions
+from django.shortcuts import render, redirect
+# Forms
+from subscriptions.forms import AddChannelForm
+# Model
+from subscriptions.models import Channel, Video
+
 
 def home(request):
+    """Mytube home page"""
+    # Number of video to show by page is always 20
     nb_by_page = 20
+    # Get the page number
     if 'page' in request.GET.keys():
         try:
             page_nb = int(request.GET['page'])
@@ -23,23 +26,29 @@ def home(request):
             page_nb = 1
     else:
         page_nb = 1
+    # Get videos to show on this page
     videos = Video.objects.all().order_by('-date')[nb_by_page*(page_nb-1):nb_by_page*page_nb]
 
+    # Define some variables for navigation bar
     if page_nb == 1:
         previous = None
-        pages = [1,2,3]
+        pages = [1, 2, 3]
         next = 4
     else:
-        previous = max(1,page_nb-2)
-        pages = [page_nb-1,page_nb,page_nb+1]
+        previous = max(1, page_nb-2)
+        pages = [page_nb-1, page_nb, page_nb+1]
         next = page_nb+2
     return render(request, 'subscriptions/home.html', locals())
 
+
 def add_channel(request):
+    """Page to add a channel to database."""
+    # Some variables to get status
     error = False
     success = False
+
+    # POST request means that the form was submitted
     if request.method == 'POST':
-        ### If POST request
         # Get the form data
         form = AddChannelForm(request.POST)
         if form.is_valid():
@@ -53,20 +62,20 @@ def add_channel(request):
                 error_message = "Impossible to get the channel page"
                 return render(request, 'subscriptions/add_channel.html', locals())
 
-            ### Parse HTML to find channel ID
+            # Parse HTML to find channel ID
             try:
                 parser = bs4.BeautifulSoup(r.text, "lxml")
-                channel_id = parser.find('meta',attrs={'itemprop':'channelId'}).get('content')
+                channel_id = parser.find('meta', attrs={'itemprop': 'channelId'}).get('content')
             except Exception as e:
                 error = True
                 error_message = "Can't find a channel ID for : " + str(e)
                 return render(request, 'subscriptions/add_channel.html', locals())
             try:
                 # IF it's a video URL
-                if parser.find('div',attrs={'class':'yt-user-info'}) is not None:
-                    channel_title = parser.find('div',attrs={'class':'yt-user-info'}).find('a').get_text()
-                elif parser.find('span',attrs={'class':'qualified-channel-title-text'}) is not None:
-                    channel_title = parser.find('span',attrs={'class':'qualified-channel-title-text'}).find('a').get_text()
+                if parser.find('div', attrs={'class': 'yt-user-info'}) is not None:
+                    channel_title = parser.find('div', attrs={'class': 'yt-user-info'}).find('a').get_text()
+                elif parser.find('span', attrs={'class': 'qualified-channel-title-text'}) is not None:
+                    channel_title = parser.find('span', attrs={'class': 'qualified-channel-title-text'}).find('a').get_text()
                 else:
                     error = True
                     error_message = "Can't find a title for the channel."
@@ -76,8 +85,8 @@ def add_channel(request):
                 error_message = "Can't find a title for the channel : " + str(e)
                 return render(request, 'subscriptions/add_channel.html', locals())
 
-            ### Create Channel in DB
-            channel = Channel(id=channel_id,name=channel_title)
+            # Create Channel in DB
+            channel = Channel(id=channel_id, name=channel_title)
             if not channel:
                 error = True
                 error_message = "Impossible to create channel in DB"
@@ -90,13 +99,15 @@ def add_channel(request):
             error_message = "Invalid form."
             return render(request, 'subscriptions/add_channel.html', locals())
     else:
-        ### If GET request
+        # GET request just show the form
         # Create empty form
         form = AddChannelForm()
         return render(request, 'subscriptions/add_channel.html', locals())
 
+
 def refresh(request, id_channel):
-    # Refresh job can be long, need to run it in background
+    """Page that run a refresh job in bakground."""
+    # Refresh job can be long, need to run it in background thread
     refresh_thread = threading.Thread(target=run_refresh, kwargs={'id_channel': id_channel})
     refresh_thread.start()
     return redirect('home')
@@ -104,24 +115,27 @@ def refresh(request, id_channel):
 
 
 def run_refresh(id_channel):
+    """Not a real django view, just function that run the refresh task in background."""
     print('Start refresh job in background')
+    # Get the list of channel objects
     if id_channel is None:
         channels = Channel.objects.all()
     else:
         channels = Channel.objects.filter(id=id_channel)
 
     for channel in channels:
-        ### Get the video_id list of this channel
+        # Get all video_id of this channel
         videos_id = [v.id for v in Video.objects.filter(channel_id=channel.id)]
 
-        ### Get data from the RSS feed
+        # Get data from the RSS feed
         feed = feedparser.parse("https://www.youtube.com/feeds/videos.xml?channel_id="+channel.id)
         # For each entry
         for post in feed.entries:
-            video_id = post.get('yt_videoid') ##### TODO ##### Check if exist
+            video_id = post.get('yt_videoid')
             # If video is already in the database, skip it
             if video_id in videos_id:
                 continue
-            video = Video(id=video_id,title=post.get('title'),channel_id=channel,date=dateutil.parser.parse(post.get('published')))
+            # Create video in database
+            video = Video(id=video_id, title=post.get('title'), channel_id=channel, date=dateutil.parser.parse(post.get('published')))
             video.save()
     print('Refresh is done !')
