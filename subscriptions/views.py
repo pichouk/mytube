@@ -124,8 +124,8 @@ def run_refresh(id_channel):
         channels = Channel.objects.filter(id=id_channel)
 
     for channel in channels:
-        # Get all video_id of this channel
-        videos_id = [v.id for v in Video.objects.filter(channel_id=channel.id)]
+        # Get 15 last video_id of this channel (because Youtube RSS feed only have last 15 videos)
+        videos_id = [v.id for v in Video.objects.filter(channel_id=channel.id).order_by('-date')[:15]]
 
         # Get data from the RSS feed
         feed = feedparser.parse("https://www.youtube.com/feeds/videos.xml?channel_id="+channel.id)
