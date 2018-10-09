@@ -75,7 +75,8 @@ fi
 pipenv run python manage.py collectstatic --noinput
 
 # Prepare crontab for refresh task
-echo "*/${REFRESH_INTERVAL_MINUTES} * * * * curl http://localhost:8000/refresh/" > /crontab.conf
+echo "*/${REFRESH_INTERVAL_MINUTES} * * * * cd /code && pipenv run ./manage.py refresh" > /crontab.conf
+# Run cron
 crontab  /crontab.conf
 crond
 
