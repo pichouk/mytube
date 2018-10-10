@@ -5,6 +5,7 @@ import dateutil.parser
 import feedparser
 # Django imports
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 # Model
 from subscriptions.models import Channel, Video
 
@@ -19,7 +20,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Run the command."""
-        self.stdout.write("Start refresh job.")
+        self.stdout.write(timezone.now().strftime('[%d/%b/%Y %H:%M:%S %z]') + '  Start refresh job.')
 
         # Get the list of channel objects
         if options['channel_id'] is None:
@@ -42,4 +43,4 @@ class Command(BaseCommand):
                 # Create video in database
                 video = Video(id=video_id, title=post.get('title'), channel_id=channel, date=dateutil.parser.parse(post.get('published')))
                 video.save()
-        self.stdout.write(self.style.SUCCESS('Refresh is done !'))
+        self.stdout.write(self.style.SUCCESS(timezone.now().strftime('[%d/%b/%Y %H:%M:%S %z]') + '  Refresh is done !'))

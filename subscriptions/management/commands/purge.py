@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Run the command."""
-        self.stdout.write("Start purge job.")
+        self.stdout.write(timezone.now().strftime('[%d/%b/%Y %H:%M:%S %z]') + '  Start purge job.')
 
         # Get retention variables
         try:
@@ -51,4 +51,4 @@ class Command(BaseCommand):
             for video in videos:
                 video.delete()
 
-        self.stdout.write(self.style.SUCCESS('Purge is done ! ' + str(nb_deleted) + ' videos were removed.'))
+        self.stdout.write(self.style.SUCCESS(timezone.now().strftime('[%d/%b/%Y %H:%M:%S %z]') + '  Purge is done ! ' + str(nb_deleted) + ' videos were removed.'))
