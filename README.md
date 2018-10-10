@@ -17,6 +17,19 @@ Some other optionnal variables :
 - `TIME_ZONE` : Your timezone (defaut is `UTC`)
 - `DJANGO_SECRET_KEY` : If you d'ont want to loose your secret key everytime you restart your container, you can give it one. Not mandatory.
 
+### Retention
+
+You can configure your Mytube instance to not keep all videos in database for a too long time. Some retention configuration can be set to purge videos from the database if :
+- the video is older than a given number of days
+- there is more than a given number of videos in database
+
+Retention is configured with following environment variables :
+- `RETENTION_INTERVAL_HOURS` : How often Mytube will check for videos to be removed (default is `24` hours)
+- `MAX_VIDEO_RETENTION` : Max number of video in database (ignore is not set)
+- `MAX_DAY_RETENTION` : Max number of day to keep a video in database (ignore is not set)
+
+If you do not specify `MAX_VIDEO_RETENTION` and `MAX_DAY_RETENTION` retention will not be enable. If you specify both, then they will be both considered (day retention is processed before).
+
 ## Run
 
 To run your image in production, I recommend using Docker Compose to manage containers needed to run Mytube : Mytube application, a webserver for static files, maybe a database, etc.
@@ -120,5 +133,4 @@ services:
 ```
 
 # TODO on Mytube
-- Create a function that purge all videos older than a date. Use cron to run this function (at a specific interval).
 - Add support for users (then `refresh` endpoint will need an ADMIN_KEY)

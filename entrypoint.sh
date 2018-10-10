@@ -4,6 +4,7 @@ CONFIG_FILE="/config/settings.py"
 # Read environment variables or set default values
 FQDN=${FQDN:-localhost}
 REFRESH_INTERVAL_MINUTES=${REFRESH_INTERVAL_MINUTES:-60}
+RETENTION_INTERVAL_HOURS=${RETENTION_INTERVAL_HOURS:-24}
 LANGUAGE_CODE=${LANGUAGE_CODE:-fr-FR}
 TIME_ZONE=${TIME_ZONE:-UTC}
 PG_DBNAME=${PG_DBNAME:-mytube}
@@ -34,6 +35,18 @@ then
     sed -i "s/<<\$SECRET_KEY\$>>/$(generate_key)/g" $CONFIG_FILE
   else
     sed -i "s/<<\$SECRET_KEY\$>>/$DJANGO_SECRET_KEY/g" $CONFIG_FILE
+  fi
+
+  # Configure retention
+  if [ ! -z "$MAX_DAY_RETENTION" ]
+  then
+    sed -i -E "s/^# retention_time_config #(.*)/\1/g" $CONFIG_FILE
+    sed -i "s/<<\$MAX_DAY_RETENTION\$>>/$MAX_DAY_RETENTION/g" $CONFIG_FILE
+  fi
+  if [ ! -z "$MAX_VIDEO_RETENTION" ]
+  then
+    sed -i -E "s/^# retention_number_config #(.*)/\1/g" $CONFIG_FILE
+    sed -i "s/<<\$MAX_VIDEO_RETENTION\$>>/$MAX_VIDEO_RETENTION/g" $CONFIG_FILE
   fi
 
   # Configure database
@@ -76,9 +89,14 @@ pipenv run python manage.py collectstatic --noinput
 
 # Prepare crontab for refresh task
 echo "*/${REFRESH_INTERVAL_MINUTES} * * * * cd /code && pipenv run ./manage.py refresh" > /crontab.conf
+# Prepare crontab for purge task
+if [ ! -z "$MAX_DAY_RETENTION" ] || [ ! -z "$MAX_VIDEO_RETENTION" ]
+then
+  echo "0 */${RETENTION_INTERVAL_HOURS} * * * cd /code && pipenv run ./manage.py purge" >> /crontab.conf
+fi
 # Run cron
 crontab  /crontab.conf
-crond
+crond -f &
 
 # Run Gunicorn server
 pipenv run gunicorn -w $((($(nproc --all)*2)+1)) \

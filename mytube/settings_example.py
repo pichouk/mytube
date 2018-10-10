@@ -135,3 +135,8 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = '/statics'
+
+# Retention variables
+
+# retention_time_config #MAX_DAY_RETENTION = <<$MAX_DAY_RETENTION$>>
+# retention_number_config #MAX_VIDEO_RETENTION = <<$MAX_VIDEO_RETENTION$>>
