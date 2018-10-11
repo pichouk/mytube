@@ -140,3 +140,8 @@ STATIC_ROOT = '/statics'
 
 # retention_time_config #MAX_DAY_RETENTION = <<$MAX_DAY_RETENTION$>>
 # retention_number_config #MAX_VIDEO_RETENTION = <<$MAX_VIDEO_RETENTION$>>
+
+# Login page
+LOGIN_URL = '/account/login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = LOGIN_URL

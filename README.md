@@ -55,6 +55,14 @@ By default Mytube use a SQLite database (stored under `/data`), but you can chan
 
 I recommend to expose your Mytube instance with a reverse proxy (I use Traefik). The reverse proxy should be configured to forward all requests to the Mytube container (port `8000`) except for everything under `/static` path, that should be serve by another web server (Apache, Nginx, etc.)
 
+## Users
+
+Django access can be made only to logged users. The **first time you create your Mytube instance** you will need to create a super-user manually, which will then be able to create other users if you need. To create your first admin user just run :
+```
+docker exec -it mytube pipenv run ./manage.py createsuperuser
+```
+This user will be able to connect to Mytube administration page (`https://my.mytubeinstance.tld/admin`). All other users need to be created using the administration interface (and this is it's only purpose for Mytube).
+
 # Examples
 
 I use Traefik to expose my containers.
@@ -131,6 +139,3 @@ services:
       - "traefik.enable=true"
     restart: always
 ```
-
-# TODO on Mytube
-- Add support for users (then `refresh` endpoint will need an ADMIN_KEY)
