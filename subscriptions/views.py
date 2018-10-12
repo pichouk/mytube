@@ -111,10 +111,10 @@ def subscribe_channel(request):
                 channel.save()
             channel.subscribers.add(request.user)
             return redirect("/refresh/"+channel.id)
-        else:
-            error = True
-            error_message = "Invalid form."
-            return render(request, 'subscriptions/subscribe.html', locals())
+        # If form not valid
+        error = True
+        error_message = "Invalid form."
+        return render(request, 'subscriptions/subscribe.html', locals())
     else:
         # GET request just show the form
         # Create empty form
@@ -128,11 +128,11 @@ def unsubscribe_channel(request):
     # Variable for error status
     error = False
     # Get the channel ID
-    if request.method == 'POST':
+    if request.method == 'POST' and 'channel_id' in request.POST:
         channel_id = request.POST['channel_id']
-    else:
+    elif 'channel_id' in request.GET:
         channel_id = request.GET['channel_id']
-    if channel_id is None:
+    else:
         error = True
         error_message = 'You need to give a channel_id as parameter.'
         return render(request, 'subscriptions/unsubscribe.html', locals())
@@ -143,14 +143,15 @@ def unsubscribe_channel(request):
     except Channel.DoesNotExist:
         error = True
         error_message = 'Unknow channel ID ' + channel_id
+        return render(request, 'subscriptions/unsubscribe.html', locals())
 
     if request.method == 'POST':
         # POST request means that the form was submitted, so delete the subscription
         channel.subscribers.remove(request.user)
         return redirect('/subscriptions/list')
-    else:
-        # GET request show the form to confirm
-        return render(request, 'subscriptions/unsubscribe.html', locals())
+    # GET request show the form to confirm
+    return render(request, 'subscriptions/unsubscribe.html', locals())
+
 
 
 @login_required
