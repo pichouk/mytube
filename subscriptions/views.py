@@ -36,13 +36,13 @@ def home(request):
 
     # Define some variables for navigation bar
     if page_nb == 1:
-        previous = None
+        previous_page = None
         pages = [1, 2, 3]
-        next = 4
+        next_page = 4
     else:
-        previous = max(1, page_nb-2)
+        previous_page = max(1, page_nb-2)
         pages = [page_nb-1, page_nb, page_nb+1]
-        next = page_nb+2
+        next_page = page_nb+2
     return render(request, 'subscriptions/home.html', locals())
 
 

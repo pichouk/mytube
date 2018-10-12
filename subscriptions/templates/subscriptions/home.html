@@ -27,8 +27,8 @@
 
 <div class="col-lg-12" id="pagebar-container">
   <ul class="pagination pagination-lg">
-    {% if previous is not None %}
-      <li><a href="?page={{ previous }}">&laquo;</a></li>
+    {% if previous_page is not None %}
+      <li><a href="?page={{ previous_page }}">&laquo;</a></li>
     {% endif %}
     {% for page in pages %}
       {% if page_nb == page %}
@@ -37,7 +37,7 @@
         <li><a href="?page={{ page }}">{{ page }}</a></li>
       {% endif %}
     {% endfor %}
-    <li><a href="?page={{ next }}">&raquo;</a></li>
+    <li><a href="?page={{ next_page }}">&raquo;</a></li>
   </ul>
 </div>
 {% endblock %}
