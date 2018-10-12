@@ -9,9 +9,10 @@
   <div class="list-group">
     {% for channel in channels %}
     <div class="list-group-item">
-      <h4 class="list-group-item-heading">{{ channel.name }}</h4>
+      <h4 class="list-group-item-heading"><a href="/channel/{{ channel.id }}" target="_blank">{{ channel.name }}</a></h4>
       <div class="buttons">
         <a href="/subscriptions/unsubscribe?channel_id={{ channel.id }}"><button class="btn btn-primary">Unsubscribe</button></a>
+        <a href="https://www.youtube.com/channel/{{ channel.id }}" target="_blank"><button class="btn btn-primary">Youtube channel</button></a>
       </div>
     </div>
     {% endfor %}

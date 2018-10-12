@@ -12,6 +12,6 @@ urlpatterns = [
     re_path(r'^subscriptions/subscribe$', views.subscribe_channel, name='subscribe_channel'),
     re_path(r'^subscriptions/list$', views.list_subscriptions, name='list_subscriptions'),
     re_path(r'^subscriptions/unsubscribe$', views.unsubscribe_channel, name='unsubscribe_channel'),
-    re_path(r'^channel/<str:channel_id>$', views.show_channel, name='show_channel'),
+    re_path(r'^channel/(?P<channel_id>[\w\W]+)$', views.show_channel, name='show_channel'),
     re_path(r'^refresh(?:/(?P<channel_id>[\w\W]+))?/$', views.refresh, name='refresh'),
 ]

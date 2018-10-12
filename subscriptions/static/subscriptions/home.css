@@ -17,3 +17,15 @@ h2{
   margin-top: 10px;
   margin-bottom: 10px;
 }
+
+#channel-name{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#subbanner{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

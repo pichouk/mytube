@@ -153,6 +153,42 @@ def unsubscribe_channel(request):
     return render(request, 'subscriptions/unsubscribe.html', locals())
 
 
+@login_required
+def show_channel(request, channel_id):
+    """Show information about a channel."""
+    # Get the channel object
+    try:
+        channel = Channel.objects.get(id=channel_id)
+    except Channel.DoesNotExist:
+        error = True
+        error_message = 'Unknow channel ID ' + channel_id
+        return render(request, 'subscriptions/show_channel.html', locals())
+
+    # Number of video to show by page is always 20
+    nb_by_page = 20
+    # Get the page number
+    if 'page' in request.GET.keys():
+        try:
+            page_nb = int(request.GET['page'])
+        except ValueError:
+            page_nb = 1
+    else:
+        page_nb = 1
+
+    # Get all videos for that channel
+    videos = Video.objects.filter(channel_id=channel.id).order_by('-date')[nb_by_page*(page_nb-1):nb_by_page*page_nb]
+
+    # Define some variables for navigation bar
+    if page_nb == 1:
+        previous_page = None
+        pages = [1, 2, 3]
+        next_page = 4
+    else:
+        previous_page = max(1, page_nb-2)
+        pages = [page_nb-1, page_nb, page_nb+1]
+        next_page = page_nb+2
+    return render(request, 'subscriptions/show_channel.html', locals())
+
 
 @login_required
 def refresh(request, channel_id):
