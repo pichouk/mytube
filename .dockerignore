@@ -1,6 +1,10 @@
 ##### Project related #####
 mytube/settings.py
 *.sqlite*
+.git/
+Dockerfile
+.gitignore
+README.md
 docker-compose.yml
 
 ##### Python related #####

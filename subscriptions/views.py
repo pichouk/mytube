@@ -1,19 +1,27 @@
-from django.shortcuts import render, redirect
+"""Django views"""
 
+# Some python lib
+import threading
+import requests
+import bs4
+# Django functions
+from django.shortcuts import render, redirect
+# Management command
+from django.core import management
+# Django auth
+from django.contrib.auth.decorators import login_required
 # Forms
-from subscriptions.forms import LoginForm, AddChannelForm
+from subscriptions.forms import AddChannelForm
 # Model
 from subscriptions.models import Channel, Video
 
-# Some python lib
-import requests
-import bs4
-import feedparser
-import time
-from datetime import datetime
 
+@login_required
 def home(request):
+    """Mytube home page"""
+    # Number of video to show by page is always 20
     nb_by_page = 20
+    # Get the page number
     if 'page' in request.GET.keys():
         try:
             page_nb = int(request.GET['page'])
@@ -21,23 +29,39 @@ def home(request):
             page_nb = 1
     else:
         page_nb = 1
-    videos = Video.objects.all().order_by('-date')[nb_by_page*(page_nb-1):nb_by_page*page_nb]
+    # Get videos of this user to show on this page
+    videos = Video.objects.filter(
+        channel_id__in=Channel.objects.filter(subscribers=request.user)
+        ).order_by('-date')[nb_by_page*(page_nb-1):nb_by_page*page_nb]
 
+    # Define some variables for navigation bar
     if page_nb == 1:
-        previous = None
-        pages = [1,2,3]
-        next = 4
+        previous_page = None
+        pages = [1, 2, 3]
+        next_page = 4
     else:
-        previous = max(1,page_nb-2)
-        pages = [page_nb-1,page_nb,page_nb+1]
-        next = page_nb+2
+        previous_page = max(1, page_nb-2)
+        pages = [page_nb-1, page_nb, page_nb+1]
+        next_page = page_nb+2
     return render(request, 'subscriptions/home.html', locals())
 
-def add_channel(request):
+
+@login_required
+def list_subscriptions(request):
+    """List all channel subscriptions of the user"""
+    # Get channels for this user
+    channels = Channel.objects.filter(subscribers=request.user)
+    return render(request, 'subscriptions/subscriptions_list.html', locals())
+
+
+@login_required
+def subscribe_channel(request):
+    """Page to subscribe to a channel and add it to database."""
+    # Some variables to get status
     error = False
-    success = False
+
+    # POST request means that the form was submitted
     if request.method == 'POST':
-        ### If POST request
         # Get the form data
         form = AddChannelForm(request.POST)
         if form.is_valid():
@@ -49,69 +73,133 @@ def add_channel(request):
                 # In case it's a wrong URL, skip it
                 error = True
                 error_message = "Impossible to get the channel page"
-                return render(request, 'subscriptions/add_channel.html', locals())
+                return render(request, 'subscriptions/subscribe.html', locals())
 
-            ### Parse HTML to find channel ID
+            # Parse HTML to find channel ID
             try:
                 parser = bs4.BeautifulSoup(r.text, "lxml")
-                channel_id = parser.find('meta',attrs={'itemprop':'channelId'}).get('content')
+                channel_id = parser.find('meta', attrs={'itemprop': 'channelId'}).get('content')
             except Exception as e:
                 error = True
                 error_message = "Can't find a channel ID for : " + str(e)
-                return render(request, 'subscriptions/add_channel.html', locals())
+                return render(request, 'subscriptions/subscribe.html', locals())
             try:
                 # IF it's a video URL
-                if parser.find('div',attrs={'class':'yt-user-info'}) is not None:
-                    channel_title = parser.find('div',attrs={'class':'yt-user-info'}).find('a').get_text()
-                elif parser.find('span',attrs={'class':'qualified-channel-title-text'}) is not None:
-                    channel_title = parser.find('span',attrs={'class':'qualified-channel-title-text'}).find('a').get_text()
+                if parser.find('div', attrs={'class': 'yt-user-info'}) is not None:
+                    channel_title = parser.find('div', attrs={'class': 'yt-user-info'}).find('a').get_text()
+                elif parser.find('span', attrs={'class': 'qualified-channel-title-text'}) is not None:
+                    channel_title = parser.find('span', attrs={'class': 'qualified-channel-title-text'}).find('a').get_text()
                 else:
                     error = True
                     error_message = "Can't find a title for the channel."
-                    return render(request, 'subscriptions/add_channel.html', locals())
+                    return render(request, 'subscriptions/subscribe.html', locals())
             except Exception as e:
                 error = True
                 error_message = "Can't find a title for the channel : " + str(e)
-                return render(request, 'subscriptions/add_channel.html', locals())
+                return render(request, 'subscriptions/subscribe.html', locals())
 
-            ### Create Channel in DB
-            channel = Channel(id=channel_id,name=channel_title)
-            if not channel:
-                error = True
-                error_message = "Impossible to create channel in DB"
-                return render(request, 'subscriptions/add_channel.html', locals())
-            channel.save()
-            success = True
+            # Check if channel exists.
+            try:
+                channel = Channel.objects.get(id=channel_id)
+            except Channel.DoesNotExist:
+                # If not create it
+                channel = Channel(id=channel_id, name=channel_title)
+                if not channel:
+                    error = True
+                    error_message = "Impossible to create channel in DB"
+                    return render(request, 'subscriptions/subscribe.html', locals())
+                channel.save()
+            channel.subscribers.add(request.user)
             return redirect("/refresh/"+channel.id)
-        else:
-            error = True
-            error_message = "Invalid form."
-            return render(request, 'subscriptions/add_channel.html', locals())
+        # If form not valid
+        error = True
+        error_message = "Invalid form."
+        return render(request, 'subscriptions/subscribe.html', locals())
     else:
-        ### If GET request
+        # GET request just show the form
         # Create empty form
         form = AddChannelForm()
-        return render(request, 'subscriptions/add_channel.html', locals())
+        return render(request, 'subscriptions/subscribe.html', locals())
 
-def refresh(request,id_channel):
+
+@login_required
+def unsubscribe_channel(request):
+    """Unsubscribe a user from a channel."""
+    # Variable for error status
     error = False
-    if id_channel is None:
-        channels = Channel.objects.all()
+    # Get the channel ID
+    if request.method == 'POST' and 'channel_id' in request.POST:
+        channel_id = request.POST['channel_id']
+    elif 'channel_id' in request.GET:
+        channel_id = request.GET['channel_id']
     else:
-        channels = Channel.objects.filter(id=id_channel)
+        error = True
+        error_message = 'You need to give a channel_id as parameter.'
+        return render(request, 'subscriptions/unsubscribe.html', locals())
 
-    for channel in channels:
-        ### Get the video_id list of this channel
-        videos_id = [v.id for v in Video.objects.filter(channel_id=channel.id)]
+    # Get the channel object
+    try:
+        channel = Channel.objects.get(id=channel_id)
+    except Channel.DoesNotExist:
+        error = True
+        error_message = 'Unknow channel ID ' + channel_id
+        return render(request, 'subscriptions/unsubscribe.html', locals())
 
-        ### Get data from the RSS feed
-        feed = feedparser.parse("https://www.youtube.com/feeds/videos.xml?channel_id="+channel.id)
-        # For each entry
-        for post in feed.entries:
-            video_id = post.get('yt_videoid') ##### TODO ##### Check if exist
-            # If video is already in the database, skip it
-            if video_id in videos_id:
-                continue
-            video = Video(id=video_id,title=post.get('title'),channel_id=channel,date=datetime.fromtimestamp(time.mktime(post.get('published_parsed'))))
-            video.save()
+    if request.method == 'POST':
+        # POST request means that the form was submitted, so delete the subscription
+        channel.subscribers.remove(request.user)
+        return redirect('/subscriptions/list')
+    # GET request show the form to confirm
+    return render(request, 'subscriptions/unsubscribe.html', locals())
+
+
+@login_required
+def show_channel(request, channel_id):
+    """Show information about a channel."""
+    # Get the channel object
+    try:
+        channel = Channel.objects.get(id=channel_id)
+    except Channel.DoesNotExist:
+        error = True
+        error_message = 'Unknow channel ID ' + channel_id
+        return render(request, 'subscriptions/show_channel.html', locals())
+
+    # Number of video to show by page is always 20
+    nb_by_page = 20
+    # Get the page number
+    if 'page' in request.GET.keys():
+        try:
+            page_nb = int(request.GET['page'])
+        except ValueError:
+            page_nb = 1
+    else:
+        page_nb = 1
+
+    # Get all videos for that channel
+    videos = Video.objects.filter(channel_id=channel.id).order_by('-date')[nb_by_page*(page_nb-1):nb_by_page*page_nb]
+
+    # Define some variables for navigation bar
+    if page_nb == 1:
+        previous_page = None
+        pages = [1, 2, 3]
+        next_page = 4
+    else:
+        previous_page = max(1, page_nb-2)
+        pages = [page_nb-1, page_nb, page_nb+1]
+        next_page = page_nb+2
+    return render(request, 'subscriptions/show_channel.html', locals())
+
+
+@login_required
+def refresh(request, channel_id):
+    """Page that run a refresh job in bakground."""
+    # Refresh job can be long, need to run it in background thread
+    refresh_thread = threading.Thread(target=run_refresh, kwargs={'channel_id': channel_id})
+    refresh_thread.start()
     return redirect('home')
+    refresh_thread.join()
+
+
+def run_refresh(channel_id):
+    """NOT A DJANGO VIEW, just a wrapper around the refresh management command, to run it in a thread."""
+    management.call_command('refresh', channel_id=channel_id)

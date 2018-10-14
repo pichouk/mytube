@@ -6,15 +6,27 @@
 {% endblock %}
 
 {% block content %}
+{% if error %}
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" >
+    <p><strong>{{ error_message }}</strong></p>
+  </div>
+</div>
+{% else %}
+<div class="row">
+  <div id="channel-name" class="col-lg-12 col-md-12 col-sm-12 col-xs-12" >
+    <h1><a href="https://www.youtube.com/channel/{{ channel.id }}" target="_blank">{{ channel.name }}</a></h1>
+  </div>
+</div>
+<div class="row">
+  <div id="subbanner" class="buttons">
+    <a href="/subscriptions/unsubscribe?channel_id={{ channel.id }}"><button class="btn btn-primary">Unsubscribe</button></a>
+  </div>
+</div>
 <section id="videos-list" class="col-lg-12">
   <div class="list-group">
     {% for video in videos %}
     <div class="list-group-item">
-      <p class="list-group-item-text">
-        <a href="/channel/{{ video.channel_id.id }}">
-          {{ video.channel_id.name }}
-        </a>
-      </p>
       <h4 class="list-group-item-heading">{{ video.title }}</h4>
       <div class="buttons">
         <button class="btn btn-primary" id="button_{{ video.id }}" onclick="showVideo('{{ video.id }}');">Watch here</button>
@@ -30,16 +42,17 @@
 <div class="col-lg-12" id="pagebar-container">
   <ul class="pagination pagination-lg">
     {% if previous_page is not None %}
-      <li><a href="?page={{ previous_page }}">&laquo;</a></li>
+    <li><a href="?page={{ previous_page }}">&laquo;</a></li>
     {% endif %}
     {% for page in pages %}
-      {% if page_nb == page %}
-        <li class="active"><a href="?page={{ page }}">{{ page }}</a></li>
-      {% else %}
-        <li><a href="?page={{ page }}">{{ page }}</a></li>
-      {% endif %}
+    {% if page_nb == page %}
+    <li class="active"><a href="?page={{ page }}">{{ page }}</a></li>
+    {% else %}
+    <li><a href="?page={{ page }}">{{ page }}</a></li>
+    {% endif %}
     {% endfor %}
     <li><a href="?page={{ next_page }}">&raquo;</a></li>
   </ul>
 </div>
+{% endif %}
 {% endblock %}
