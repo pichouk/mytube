@@ -3,9 +3,11 @@
 # Some python lib
 import dateutil.parser
 import feedparser
+from datetime import timedelta
 # Django imports
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from django.conf import settings
 # Model
 from subscriptions.models import Channel, Video
 
@@ -21,6 +23,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Run the command."""
         self.stdout.write(timezone.now().strftime('[%d/%b/%Y %H:%M:%S %z]') + '  Start refresh job.')
+
+        # Get the time retention value
+        try:
+            day_retention = settings.MAX_DAY_RETENTION
+            max_date = timezone.now() - timedelta(days=day_retention)
+        except AttributeError:
+            max_date = None
 
         # Get the list of channel objects
         if options['channel_id'] is None:
@@ -40,7 +49,11 @@ class Command(BaseCommand):
                 # If video is already in the database, skip it
                 if video_id in videos_id:
                     continue
+                # If video is older than retention time ignore it
+                video_date = dateutil.parser.parse(post.get('published'))
+                if max_date is not None and video_date < max_date:
+                    continue
                 # Create video in database
-                video = Video(id=video_id, title=post.get('title'), channel_id=channel, date=dateutil.parser.parse(post.get('published')))
+                video = Video(id=video_id, title=post.get('title'), channel_id=channel, date=video_date)
                 video.save()
         self.stdout.write(self.style.SUCCESS(timezone.now().strftime('[%d/%b/%Y %H:%M:%S %z]') + '  Refresh is done !'))
