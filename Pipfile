@@ -1,11 +1,11 @@
 [dev-packages]
 
 [packages]
-requests = "==2.21.0"
+requests = "==2.22.0"
 feedparser = "==5.2.1"
-"beautifulsoup4" = "==4.6.3"
-lxml = "==4.2.5"
-Django = "==2.1.7"
+"beautifulsoup4" = "==4.7.1"
+lxml = "==4.3.4"
+Django = "==2.2.2"
 "psycopg2" = "*"
 python-dateutil = "*"
 gunicorn = "==19.9.0"
