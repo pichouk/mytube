@@ -3,12 +3,12 @@
 [packages]
 requests = "==2.22.0"
 feedparser = "==5.2.1"
-"beautifulsoup4" = "==4.7.1"
-lxml = "==4.3.4"
-Django = "==2.2.8"
+"beautifulsoup4" = "==4.8.2"
+lxml = "==4.4.2"
+Django = "==3.0.2"
 "psycopg2" = "*"
 python-dateutil = "*"
-gunicorn = "==19.9.0"
+gunicorn = "==20.0.4"
 
 [requires]
 python_version = "3.7"
