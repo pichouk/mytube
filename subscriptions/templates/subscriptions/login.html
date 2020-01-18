@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'subscriptions/form.css' %}" />
 {% endblock %}
 
 {% block content %}
-  <div class="row">
-    <form method="post" action="/account/login">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <input type="submit" value="Login" class="btn btn-primary"/>
-    </form>
-  </div>
+<div class="row">
+  <form method="post" action="/account/login">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Login" class="btn btn-primary" />
+  </form>
+</div>
 {% endblock %}

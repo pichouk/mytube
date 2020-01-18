@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'subscriptions/home.css' %}" />
 <script src="{% static 'subscriptions/scripts.js' %}"></script>
@@ -8,19 +8,20 @@
 {% block content %}
 {% if error %}
 <div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" >
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
     <p><strong>{{ error_message }}</strong></p>
   </div>
 </div>
 {% else %}
 <div class="row">
-  <div id="channel-name" class="col-lg-12 col-md-12 col-sm-12 col-xs-12" >
+  <div id="channel-name" class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
     <h1><a href="https://www.youtube.com/channel/{{ channel.id }}" target="_blank">{{ channel.name }}</a></h1>
   </div>
 </div>
 <div class="row">
   <div id="subbanner" class="buttons">
-    <a href="/subscriptions/unsubscribe?channel_id={{ channel.id }}"><button class="btn btn-primary">Unsubscribe</button></a>
+    <a href="/subscriptions/unsubscribe?channel_id={{ channel.id }}"><button
+        class="btn btn-primary">Unsubscribe</button></a>
   </div>
 </div>
 <section id="videos-list" class="col-lg-12">
@@ -29,8 +30,10 @@
     <div class="list-group-item">
       <h4 class="list-group-item-heading">{{ video.title }}</h4>
       <div class="buttons">
-        <button class="btn btn-primary" id="button_{{ video.id }}" onclick="showVideo('{{ video.id }}');">Watch here</button>
-        <a href="https://www.youtube.com/watch?v={{ video.id }}" target="_blank"><button class="btn btn-primary" >Watch on YouTube</button></a>
+        <button class="btn btn-primary" id="button_{{ video.id }}" onclick="showVideo('{{ video.id }}');">Watch
+          here</button>
+        <a href="https://www.youtube.com/watch?v={{ video.id }}" target="_blank"><button class="btn btn-primary">Watch
+            on YouTube</button></a>
       </div>
       <div id="video_frame_{{ video.id }}">
       </div>

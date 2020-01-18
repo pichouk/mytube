@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% block head %}
 <link rel="stylesheet" href="{% static 'subscriptions/form.css' %}" />
 {% endblock %}
 
 {% block content %}
-  <div class="row">
-    {% if error %}
-    <p><strong>{{ error_message }}</strong></p>
-    {% else %}
-    <p><strong>Are you sure you want to unsubscribe from channel "{{ channel.name }}"</strong></p>
+<div class="row">
+  {% if error %}
+  <p><strong>{{ error_message }}</strong></p>
+  {% else %}
+  <p><strong>Are you sure you want to unsubscribe from channel "{{ channel.name }}"</strong></p>
 
-    <form method="post" action="/subscriptions/unsubscribe">
-      {% csrf_token %}
-      <input type="hidden" id="channel_id" name="channel_id" value="{{ channel.id }}">
-      <input type="submit" value="Unsubscribe" class="btn btn-primary"/>
-    </form>
-    {% endif %}
-  </div>
+  <form method="post" action="/subscriptions/unsubscribe">
+    {% csrf_token %}
+    <input type="hidden" id="channel_id" name="channel_id" value="{{ channel.id }}">
+    <input type="submit" value="Unsubscribe" class="btn btn-primary" />
+  </form>
+  {% endif %}
+</div>
 {% endblock %}
