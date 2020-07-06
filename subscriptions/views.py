@@ -84,8 +84,11 @@ def subscribe_channel(request):
                 error_message = "Can't find a channel ID for : " + str(e)
                 return render(request, 'subscriptions/subscribe.html', locals())
             try:
-                # IF it's a video URL
-                if parser.find('div', attrs={'class': 'yt-user-info'}) is not None:
+                # Try different method to get channel title
+                if parser.find('span', attrs={'itemprop': 'author'}) is not None:
+                    channel_title = parser.find('span', attrs={'itemprop': 'author'}).find(
+                        'link', attrs={'itemprop': 'name'})['content']
+                elif parser.find('div', attrs={'class': 'yt-user-info'}) is not None:
                     channel_title = parser.find('div', attrs={'class': 'yt-user-info'}).find('a').get_text()
                 elif parser.find('span', attrs={'class': 'qualified-channel-title-text'}) is not None:
                     channel_title = parser.find('span', attrs={'class': 'qualified-channel-title-text'}).find('a').get_text()
