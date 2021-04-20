@@ -68,7 +68,7 @@ def subscribe_channel(request):
             channel_url = form.cleaned_data['channel']
             # Get the channel page
             try:
-                r = requests.get(channel_url)
+                r = requests.get(channel_url, cookies={'CONSENT': 'PENDING+999'})
             except requests.exceptions.RequestException as e:
                 # In case it's a wrong URL, skip it
                 error = True
